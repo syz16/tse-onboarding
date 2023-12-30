@@ -1,0 +1,14 @@
+.title {
+  font: var(--font-heading);
+}
+
+.itemWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.wrapper {
+  margin-top: 3rem;
+}
