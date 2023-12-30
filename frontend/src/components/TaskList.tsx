@@ -11,7 +11,6 @@ export function TaskList({ title }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    // your code here
     getAllTasks().then((result) => {
       if (result.success) {
         setTasks(result.data);
