@@ -18,15 +18,6 @@
   overflow: hidden;
 }
 
-.checkButton {
-  height: 100%;
-  flex-grow: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
-}
-
 .textContainer span {
   width: 100%;
   white-space: nowrap;
