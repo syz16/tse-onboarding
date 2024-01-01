@@ -36,6 +36,8 @@ export const getTask: RequestHandler = async (req, res, next) => {
       throw createHttpError(404, "Task not found.");
     }
 
+    task.populate("assignee");
+
     // Set the status code (200) and body (the task object as JSON) of the response.
     // Note that you don't need to return anything, but you can still use a return
     // statement to exit the function early.
@@ -49,7 +51,7 @@ export const getTask: RequestHandler = async (req, res, next) => {
 export const createTask: RequestHandler = async (req, res, next) => {
   // extract any errors that were found by the validator
   const errors = validationResult(req);
-  const { title, description, isChecked } = req.body;
+  const { title, description, isChecked, assignee } = req.body;
 
   try {
     // if there are errors, then this function throws an exception
@@ -60,7 +62,10 @@ export const createTask: RequestHandler = async (req, res, next) => {
       description: description,
       isChecked: isChecked,
       dateCreated: Date.now(),
+      assignee: assignee,
     });
+
+    task.populate(assignee);
 
     // 201 means a new resource has been created successfully
     // the newly created task is sent back to the user
@@ -101,6 +106,9 @@ export const updateTask: RequestHandler = async (req, res, next) => {
     }
 
     const updatedTask = await TaskModel.findById(id);
+    if (updatedTask != null) {
+      updatedTask.populate("assignee");
+    }
     res.status(200).json(updatedTask);
   } catch (error) {
     next(error);

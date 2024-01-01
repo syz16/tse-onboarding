@@ -14,14 +14,16 @@ export function TaskItem({ task: initialTask }: TaskItemProps) {
 
   const handleToggleCheck = () => {
     setLoading(true);
-    updateTask({ ...task, isChecked: !task.isChecked }).then((result) => {
-      if (result.success) {
-        setTask(result.data);
-      } else {
-        alert(result.error);
-      }
-      setLoading(false);
-    });
+    updateTask({ ...task, isChecked: !task.isChecked, assignee: task.assignee?._id }).then(
+      (result) => {
+        if (result.success) {
+          setTask(result.data);
+        } else {
+          alert(result.error);
+        }
+        setLoading(false);
+      },
+    );
   };
 
   let checkedClass = styles.textContainer;
