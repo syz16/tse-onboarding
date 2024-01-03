@@ -7,6 +7,7 @@ import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import TaskModel from "src/models/task";
 import validationErrorParser from "src/util/validationErrorParser";
+import { Types } from "mongoose";
 
 /**
  * This is an example of an Express API request handler. We'll tell Express to
@@ -29,14 +30,12 @@ export const getTask: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    // if the ID doesn't exist, then findById returns null
-    const task = await TaskModel.findById(id);
-
-    if (task === null) {
-      throw createHttpError(404, "Task not found.");
+    // if the ID isn't valid, return null
+    // if the ID is valid but doesn't exist, then findById returns null
+    const task = Types.ObjectId.isValid(id) ? await TaskModel.findById(id) : null;
+    if (task != null) {
+      task.populate("assignee");
     }
-
-    task.populate("assignee");
 
     // Set the status code (200) and body (the task object as JSON) of the response.
     // Note that you don't need to return anything, but you can still use a return

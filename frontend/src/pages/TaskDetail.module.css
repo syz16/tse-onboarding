@@ -1,0 +1,49 @@
+.wrapper {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  row-gap: 2rem;
+}
+
+.rowWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 2rem;
+}
+
+.titleRowWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 2rem;
+  justify-content: space-between;
+}
+
+.title {
+  font: var(--font-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.description {
+  font: var(--font-body);
+  word-wrap: break-word;
+}
+
+.label {
+  font: var(--font-label);
+}
+
+.body {
+  font: var(--font-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editButton {
+  white-space: nowrap;
+}
