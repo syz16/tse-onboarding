@@ -30,7 +30,11 @@ interface TaskJSON {
   description?: string;
   isChecked: boolean;
   dateCreated: string;
-  assignee?: User;
+  assignee?: {
+    _id: string;
+    name: string;
+    profilePictureURL: string;
+  };
 }
 
 /**

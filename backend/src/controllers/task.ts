@@ -32,10 +32,9 @@ export const getTask: RequestHandler = async (req, res, next) => {
   try {
     // if the ID isn't valid, return null
     // if the ID is valid but doesn't exist, then findById returns null
-    const task = Types.ObjectId.isValid(id) ? await TaskModel.findById(id) : null;
-    if (task != null) {
-      task.populate("assignee");
-    }
+    const task = Types.ObjectId.isValid(id)
+      ? await TaskModel.findById(id).populate("assignee")
+      : null;
 
     // Set the status code (200) and body (the task object as JSON) of the response.
     // Note that you don't need to return anything, but you can still use a return
@@ -64,11 +63,11 @@ export const createTask: RequestHandler = async (req, res, next) => {
       assignee: assignee,
     });
 
-    task.populate(assignee);
+    const createdTask = TaskModel.findOne(task._id).populate(assignee);
 
     // 201 means a new resource has been created successfully
     // the newly created task is sent back to the user
-    res.status(201).json(task);
+    res.status(201).json(createdTask);
   } catch (error) {
     next(error);
   }
@@ -104,10 +103,7 @@ export const updateTask: RequestHandler = async (req, res, next) => {
       throw createHttpError(404, "Task not found.");
     }
 
-    const updatedTask = await TaskModel.findById(id);
-    if (updatedTask != null) {
-      updatedTask.populate("assignee");
-    }
+    const updatedTask = await TaskModel.findById(id).populate("assignee");
     res.status(200).json(updatedTask);
   } catch (error) {
     next(error);
