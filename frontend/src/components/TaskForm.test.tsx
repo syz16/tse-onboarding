@@ -38,6 +38,7 @@ jest.mock("src/api/tasks", () => ({
   // this doesn't work if we just use `mockCreateTask` directly, exact reason
   // unknown, so we wrap it in a normal function
   createTask: (params: CreateTaskRequest) => mockCreateTask(params),
+  updateTask: (params: UpdateTaskRequest) => mockUpdateTask(params),
 }));
 
 /**
