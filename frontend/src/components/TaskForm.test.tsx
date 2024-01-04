@@ -1,7 +1,7 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import type { CreateTaskRequest, Task } from "src/api/tasks";
+import type { CreateTaskRequest, UpdateTaskRequest, Task } from "src/api/tasks";
 import { TaskForm, type TaskFormProps } from "src/components/TaskForm";
 
 const TITLE_INPUT_ID = "task-title-input";
@@ -20,6 +20,7 @@ const SAVE_BUTTON_ID = "task-save-button";
  * See https://jestjs.io/docs/mock-functions for more info about mock functions.
  */
 const mockCreateTask = jest.fn((_params: CreateTaskRequest) => Promise.resolve({ success: true }));
+const mockUpdateTask = jest.fn((_params: UpdateTaskRequest) => Promise.resolve({ success: true }));
 
 /**
  * The `jest.mock()` function allows us to replace the exports of another
@@ -133,8 +134,8 @@ describe("TaskForm", () => {
     });
     const saveButton = screen.getByTestId(SAVE_BUTTON_ID);
     fireEvent.click(saveButton);
-    expect(mockCreateTask).toHaveBeenCalledTimes(1);
-    expect(mockCreateTask).toHaveBeenCalledWith({
+    expect(mockUpdateTask).toHaveBeenCalledTimes(1);
+    expect(mockUpdateTask).toHaveBeenCalledWith({
       title: "Updated title",
       description: "Updated description",
     });
