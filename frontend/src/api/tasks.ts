@@ -1,4 +1,5 @@
 import { type APIResult, get, handleAPIError, post, put } from "src/api/requests";
+import { type User } from "src/api/users";
 
 /**
  * Defines the "shape" of a Task object (what fields are present and their types) for
@@ -11,6 +12,7 @@ export interface Task {
   description?: string;
   isChecked: boolean;
   dateCreated: Date;
+  assignee?: User;
 }
 
 /**
@@ -28,6 +30,11 @@ interface TaskJSON {
   description?: string;
   isChecked: boolean;
   dateCreated: string;
+  assignee?: {
+    _id: string;
+    name: string;
+    profilePictureURL: string;
+  };
 }
 
 /**
@@ -44,6 +51,7 @@ function parseTask(task: TaskJSON): Task {
     description: task.description,
     isChecked: task.isChecked,
     dateCreated: new Date(task.dateCreated),
+    assignee: task.assignee,
   };
 }
 
@@ -55,6 +63,7 @@ function parseTask(task: TaskJSON): Task {
 export interface CreateTaskRequest {
   title: string;
   description?: string;
+  assignee?: string;
 }
 
 /**
@@ -67,6 +76,7 @@ export interface UpdateTaskRequest {
   description?: string;
   isChecked: boolean;
   dateCreated: Date;
+  assignee?: string;
 }
 
 /**

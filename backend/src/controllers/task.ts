@@ -6,7 +6,9 @@ import { RequestHandler } from "express";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import TaskModel from "src/models/task";
+import UserModel from "src/models/user";
 import validationErrorParser from "src/util/validationErrorParser";
+import { Types } from "mongoose";
 
 /**
  * This is an example of an Express API request handler. We'll tell Express to
@@ -29,12 +31,11 @@ export const getTask: RequestHandler = async (req, res, next) => {
   const { id } = req.params;
 
   try {
-    // if the ID doesn't exist, then findById returns null
-    const task = await TaskModel.findById(id);
-
-    if (task === null) {
-      throw createHttpError(404, "Task not found.");
-    }
+    // if the ID isn't valid, return null
+    // if the ID is valid but doesn't exist, then findById returns null
+    const task = Types.ObjectId.isValid(id)
+      ? await TaskModel.findById(id).populate("assignee")
+      : null;
 
     // Set the status code (200) and body (the task object as JSON) of the response.
     // Note that you don't need to return anything, but you can still use a return
@@ -49,7 +50,7 @@ export const getTask: RequestHandler = async (req, res, next) => {
 export const createTask: RequestHandler = async (req, res, next) => {
   // extract any errors that were found by the validator
   const errors = validationResult(req);
-  const { title, description, isChecked } = req.body;
+  const { title, description, isChecked, assignee } = req.body;
 
   try {
     // if there are errors, then this function throws an exception
@@ -60,11 +61,14 @@ export const createTask: RequestHandler = async (req, res, next) => {
       description: description,
       isChecked: isChecked,
       dateCreated: Date.now(),
+      assignee: assignee == "" ? undefined : assignee,
     });
+
+    const createdTask = await TaskModel.findOne(task._id).populate("assignee");
 
     // 201 means a new resource has been created successfully
     // the newly created task is sent back to the user
-    res.status(201).json(task);
+    res.status(201).json(createdTask);
   } catch (error) {
     next(error);
   }
@@ -85,7 +89,7 @@ export const removeTask: RequestHandler = async (req, res, next) => {
 export const updateTask: RequestHandler = async (req, res, next) => {
   const errors = validationResult(req);
   const { id } = req.params;
-  const { _id } = req.body;
+  const { _id, assignee } = req.body;
 
   try {
     validationErrorParser(errors);
@@ -95,12 +99,27 @@ export const updateTask: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const query = await TaskModel.findByIdAndUpdate(id, req.body);
-    if (query == null) {
+    // make sure the assignee id is of a User object
+    if (assignee) {
+      const assigneeQuery = await UserModel.findById(assignee);
+      if (assigneeQuery == null) {
+        throw createHttpError(400, "assignee must be a User object ID");
+      }
+    }
+
+    const taskQuery = Types.ObjectId.isValid(id)
+      ? await TaskModel.findByIdAndUpdate(id, {
+          ...req.body,
+          // The findByIdAndUpdate method ignores undefined values.
+          // So to remove the assignment field, we must set it to null instead of undefined.
+          assignee: assignee ? assignee : null,
+        })
+      : null;
+    if (taskQuery == null) {
       throw createHttpError(404, "Task not found.");
     }
 
-    const updatedTask = await TaskModel.findById(id);
+    const updatedTask = await TaskModel.findById(id).populate("assignee");
     res.status(200).json(updatedTask);
   } catch (error) {
     next(error);
