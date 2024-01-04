@@ -6,6 +6,7 @@ import { RequestHandler } from "express";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 import TaskModel from "src/models/task";
+import UserModel from "src/models/user";
 import validationErrorParser from "src/util/validationErrorParser";
 import { Types } from "mongoose";
 
@@ -60,10 +61,10 @@ export const createTask: RequestHandler = async (req, res, next) => {
       description: description,
       isChecked: isChecked,
       dateCreated: Date.now(),
-      assignee: assignee,
+      assignee: assignee == "" ? undefined : assignee,
     });
 
-    const createdTask = TaskModel.findOne(task._id).populate(assignee);
+    const createdTask = await TaskModel.findOne(task._id).populate("assignee");
 
     // 201 means a new resource has been created successfully
     // the newly created task is sent back to the user
@@ -88,7 +89,7 @@ export const removeTask: RequestHandler = async (req, res, next) => {
 export const updateTask: RequestHandler = async (req, res, next) => {
   const errors = validationResult(req);
   const { id } = req.params;
-  const { _id } = req.body;
+  const { _id, assignee } = req.body;
 
   try {
     validationErrorParser(errors);
@@ -98,8 +99,23 @@ export const updateTask: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const query = await TaskModel.findByIdAndUpdate(id, req.body);
-    if (query == null) {
+    // make sure the assignee id is of a User object
+    if (assignee) {
+      const assigneeQuery = await UserModel.findById(assignee);
+      if (assigneeQuery == null) {
+        throw createHttpError(400, "assignee must be a User object ID");
+      }
+    }
+
+    const taskQuery = Types.ObjectId.isValid(id)
+      ? await TaskModel.findByIdAndUpdate(id, {
+          ...req.body,
+          // The findByIdAndUpdate method ignores undefined values.
+          // So to remove the assignment field, we must set it to null instead of undefined.
+          assignee: assignee ? assignee : null,
+        })
+      : null;
+    if (taskQuery == null) {
       throw createHttpError(404, "Task not found.");
     }
 

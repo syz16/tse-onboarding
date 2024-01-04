@@ -49,3 +49,9 @@
 .textContainer a:hover {
   text-decoration: underline;
 }
+
+.userTagWrapper {
+  min-width: 12rem;
+  width: 12rem;
+  margin-left: 1rem;
+}

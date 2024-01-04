@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { getTask, type Task } from "src/api/tasks";
 import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "react-router-dom";
-import { Button, Page } from "src/components";
+import { Button, Page, TaskForm, UserTag } from "src/components";
 import styles from "src/pages/TaskDetail.module.css";
 
 export function TaskDetail() {
   const { id } = useParams();
   const [task, setTask] = useState<Task>();
+  const [isEditing, setIsEditing] = useState<boolean>();
 
   useEffect(() => {
     getTask(id as string).then((result) => {
@@ -31,6 +32,25 @@ export function TaskDetail() {
         </div>
       </Page>
     );
+  } else if (isEditing) {
+    return (
+      <Page>
+        <Helmet>
+          <title>{task.title && `${task.title} | TSE Todos`}</title>
+        </Helmet>
+        <p>
+          <Link to="/">Back to home</Link>
+        </p>
+        <TaskForm
+          mode="edit"
+          task={task}
+          onSubmit={(task) => {
+            setIsEditing(false);
+            setTask(task);
+          }}
+        />
+      </Page>
+    );
   } else {
     return (
       <Page>
@@ -43,7 +63,15 @@ export function TaskDetail() {
         <div className={styles.wrapper}>
           <div className={styles.titleRowWrapper}>
             <div className={styles.title}>{task.title}</div>
-            <Button kind="primary" type="button" label="Edit task" className={styles.editButton} />
+            <Button
+              kind="primary"
+              type="button"
+              label="Edit task"
+              className={styles.editButton}
+              onClick={() => {
+                setIsEditing(true);
+              }}
+            />
           </div>
           {task.description ? (
             <div className={styles.description}>{task.description}</div>
@@ -52,7 +80,11 @@ export function TaskDetail() {
           )}
           <div className={styles.rowWrapper}>
             <div className={styles.label}>Assignee</div>
-            <div className={styles.body}>Not assigned</div>
+            {task.assignee != undefined ? (
+              <UserTag user={task.assignee} />
+            ) : (
+              <div className={styles.body}>Not assigned</div>
+            )}
           </div>
           <div className={styles.rowWrapper}>
             <div className={styles.label}>Status</div>
