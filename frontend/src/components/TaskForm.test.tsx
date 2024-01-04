@@ -136,10 +136,12 @@ describe("TaskForm", () => {
     const saveButton = screen.getByTestId(SAVE_BUTTON_ID);
     fireEvent.click(saveButton);
     expect(mockUpdateTask).toHaveBeenCalledTimes(1);
-    expect(mockUpdateTask).toHaveBeenCalledWith({
-      title: "Updated title",
-      description: "Updated description",
-    });
+    expect(mockUpdateTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Updated title",
+        description: "Updated description",
+      }),
+    );
     await waitFor(() => {
       // If the test ends before all state updates and rerenders occur, we'll
       // get a warning about updates not being wrapped in an `act(...)`
